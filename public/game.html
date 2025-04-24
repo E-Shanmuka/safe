@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Games </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+  background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+  background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+        .game-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            margin: 15px;
+            width: calc(20% - 30px); /* Adjust width for 5 boxes per row */
+        }
+.game-box a {
+    text-decoration: none; /* Removes underline */
+    color: inherit; /* Keeps the text color unchanged */
+}
+
+.game-box a:hover {
+    color: inherit; /* Prevents color change on hover */
+}
+        .game-box img {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+        }
+        .game-box h5 {
+            margin-top: 10px;
+        }
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+
+/* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+.navbar .nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .nav-link:hover {
+  background-color: #f0f0f0;
+  color: #007bff !important;
+}
+
+/* Logout button styling */
+.navbar .btn-danger {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #ff4d4d;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background-color: #e60000;
+}
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="friend.html">
+                        <i class="fas fa-user-friends me-1"></i> Friend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="group.html">
+                        <i class="fas fa-users me-1"></i> Group
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="bot.html">
+                        <i class="fas fa-comments me-1"></i> Bot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gd.html">
+                        <i class="fas fa-users-cog me-1"></i> GD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ra.html">
+                        <i class="fas fa-file-alt me-1"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="game.html">
+                        <i class="fas fa-gamepad me-1"></i> Games
+                    </a>
+                </li>
+            </ul>
+            <a class="btn btn-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+  <div class="container mt-4">
+    <h1 class="text-center text-primary">Mind Games </h1>
+    <div class="game-container" id="game-list">
+      <!-- Game boxes will be inserted here dynamically -->
+    </div>
+  </div>
+  
+  <script>
+    const games = [
+      { name: "Math Quiz", image: "game/math.png", link: "math.html" },
+      { name: "Memory Test", image: "game/memory.jpg", link: "memorytest.html" },
+      { name: "Typing Speed", image: "game/typing.jpg", link: "typingspeed.html" },
+      { name: "Puzzle Game", image: "game/puzzle.jpg", link: "puzzle.html" },
+      { name: "Word Scramble", image: "game/words.jpg", link: "scrambler.html" },
+      { name: "Sudoku", image: "game/sudoko.jpg", link: "sudoko.html" },
+      { name: "Chess Challenge", image: "game/chess.jpg", link: "chess.html" },
+      { name: "Trivia Quiz", image: "game/trivia.jpg", link: "trivia.html" },
+      { name: "Reaction Test", image: "game/reaction.jpg", link: "reaction.html" },
+      { name: "Pattern Memory", image: "game/pattern.jpg", link: "patern.html" }
+    ];
+
+    function loadGames() {
+      let gameContainer = document.getElementById("game-list");
+      games.forEach((game) => {
+        let gameBox = document.createElement("div");
+        gameBox.classList.add("game-box");
+        gameBox.innerHTML = `
+          <a href="${game.link}">
+            <img src="${game.image}" alt="${game.name}">
+            <h5>${game.name}</h5>
+          </a>
+        `;
+        gameContainer.appendChild(gameBox);
+      });
+    }
+    window.onload = loadGames;
+  </script>
+</body>
+</html>

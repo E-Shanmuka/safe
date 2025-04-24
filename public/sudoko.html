@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .game-container {
+            max-width: 450px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 2px;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: 1px solid #aaa;
+            background-color: white;
+        }
+        .fixed {
+            background-color: #ddd;
+            font-weight: bold;
+        }
+        .incorrect {
+            background-color: #e6a0a0;
+        }
+        .difficulty-container {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <button class="back-btn" onclick="goBack()">🔙 Back</button>
+    <h2 class="text-primary">Sudoku Game</h2>
+    
+    <div class="difficulty-container">
+        <label>Select Difficulty: </label>
+        <select id="difficulty" onchange="setDifficulty()">
+            <option value="easy">Easy</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="hard">Hard</option>
+        </select>
+    </div>
+
+    <div class="sudoku-grid" id="sudokuGrid"></div>
+    <button class="btn btn-warning mt-2" onclick="useHint()">Hint (Remaining: <span id="hintCount">11</span>)</button>
+</div>
+
+<script>
+    const board = [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ];
+
+    let hintsLeft = 11;
+
+    function renderBoard(preFilled) {
+        const grid = document.getElementById("sudokuGrid");
+        grid.innerHTML = "";
+
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const cell = document.createElement("input");
+                cell.className = "cell";
+                cell.type = "text";
+                cell.maxLength = 1;
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+
+                if (board[row][col] !== 0 && preFilled[row][col]) {
+                    cell.value = board[row][col];
+                    cell.disabled = true;
+                    cell.classList.add("fixed");
+                } else {
+                    cell.addEventListener("input", checkInput);
+                }
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function checkInput(e) {
+        const row = e.target.dataset.row;
+        const col = e.target.dataset.col;
+        const value = parseInt(e.target.value) || 0;
+
+        if (value !== 0) {
+            if (isDuplicate(row, col, value)) {
+                e.target.classList.add("incorrect");
+            } else {
+                e.target.classList.remove("incorrect");
+            }
+        } else {
+            e.target.classList.remove("incorrect");
+        }
+    }
+
+    function isDuplicate(row, col, value) {
+        const cells = document.querySelectorAll(".cell");
+        
+        for (let i = 0; i < 9; i++) {
+            if (i != col && getCell(row, i).value == value) return true;
+            if (i != row && getCell(i, col).value == value) return true;
+        }
+
+        const boxRowStart = Math.floor(row / 3) * 3;
+        const boxColStart = Math.floor(col / 3) * 3;
+        for (let r = boxRowStart; r < boxRowStart + 3; r++) {
+            for (let c = boxColStart; c < boxColStart + 3; c++) {
+                if ((r != row || c != col) && getCell(r, c).value == value) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function getCell(row, col) {
+        return document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+    }
+
+    function useHint() {
+        if (hintsLeft > 0) {
+            let emptyCells = [...document.querySelectorAll(".cell:not(.fixed)")].filter(c => c.value === "");
+            if (emptyCells.length > 0) {
+                let randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                let row = randomCell.dataset.row;
+                let col = randomCell.dataset.col;
+                
+                let correctValue = findCorrectValue(row, col);
+                if (correctValue) {
+                    randomCell.value = correctValue;
+                    randomCell.classList.add("fixed");
+                    randomCell.disabled = true;
+                    hintsLeft--;
+                    document.getElementById("hintCount").innerText = hintsLeft;
+                }
+            }
+        }
+    }
+
+    function findCorrectValue(row, col) {
+        for (let num = 1; num <= 9; num++) {
+            if (!isDuplicate(row, col, num)) return num;
+        }
+        return null;
+    }
+
+    function setDifficulty() {
+        let level = document.getElementById("difficulty").value;
+        let filledCells = { easy: 40, intermediate: 30, hard: 20 }[level];
+        let preFilled = board.map(row => row.map(val => (Math.random() * 81 < filledCells ? 1 : 0)));
+        renderBoard(preFilled);
+    }
+
+    function goBack() {
+        window.location.href = "game.html";
+    }
+
+    setDifficulty();
+</script>
+
+</body>
+</html>

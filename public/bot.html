@@ -1,0 +1,367 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="secure.js"></script>
+    <script src="secure2.js"></script>
+    <style>
+
+body {
+  background: url('htt');
+  background-color: #fefefe;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  font-family: 'Poppins', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  flex-direction: column;
+  padding-top: 60px;
+}
+
+
+       .navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+
+      .chat-container {
+    width: 80%;
+    max-width: 900px;
+    height: 80vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    z-index: 1;
+}
+.chat-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 1600px;
+    padding: 2px;
+    background: linear-gradient(155deg, #b2f0e8, #d0caff); /* soft aqua to light lavender */
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+}
+
+
+       .chat-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #fdfcff;
+    border-radius: 12px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(200, 200, 255, 0.3);
+}
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 20px;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+.chat-message {
+    margin-bottom: 12px;
+    padding: 12px 18px;
+    border-radius: 20px;
+    max-width: 60%;
+    word-wrap: break-word;
+    position: relative;
+    background-color: #fff;
+    border-image: linear-gradient(135deg, #00c3ff, #ffff1c) 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+        .user {
+            background: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #e1e1e1;
+            color: black;
+            align-self: flex-start;
+        }
+
+        .input-group {
+            margin-top: 10px;
+        }
+
+        .form-control {
+            border-radius: 30px;
+            padding: 12px;
+        }
+
+        .btn-send {
+            border-radius: 30px;
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+        }
+
+body {
+  background-color: #f3faff;
+  background-image: linear-gradient(
+    45deg,
+    rgba(200, 200, 200, 0.05) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(200, 200, 200, 0.05) 50%,
+    rgba(200, 200, 200, 0.05) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 40px 40px;
+  background-attachment: fixed;
+}
+
+
+
+/* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+/* Stunning Glassmorphism Navbar */
+.navbar {
+  background: linear-gradient(to right, #fce4ec, #e0f7fa, #fdfbfb); /* pastel pink to blue to white */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  outline: 1px solid rgba(173, 216, 230, 0.3);
+  outline-offset: -4px;
+
+  padding: 12px 40px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  z-index: 1000;
+}
+
+
+/* Visible text with dark base */
+.navbar .nav-link {
+  color: #222 !important;
+  font-weight: 600;
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin: 0 8px;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover glow */
+.navbar .nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #1e90ff, #8a2be2);
+  border-radius: 12px;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: -1;
+}
+
+.navbar .nav-link:hover::before {
+  opacity: 1;
+}
+
+.navbar .nav-link:hover {
+  transform: translateY(-4px) scale(1.03) rotateX(5deg);
+  background-color: #e6f0ff; /* soft light blue */
+  box-shadow: 4px 4px 14px rgba(173, 216, 230, 0.4), 
+              -4px -4px 14px rgba(255, 255, 255, 0.6);
+  color: #2a2a2a; /* keep text readable */
+}
+
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.2), transparent);
+  z-index: -1;
+  transition: all 0.3s ease-in-out;
+}
+
+
+/* Logout Button Stylish */
+.navbar .btn-danger {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 10px 20px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 65, 108, 0.4);
+  transition: all 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+  box-shadow: 0 6px 25px rgba(255, 65, 108, 0.6);
+}
+     </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="friend.html">
+                        <i class="fas fa-user-friends me-1"></i> Friend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="group.html">
+                        <i class="fas fa-users me-1"></i> Group
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="bot.html">
+                        <i class="fas fa-comments me-1"></i> Bot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gd.html">
+                        <i class="fas fa-users-cog me-1"></i> GD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ra.html">
+                        <i class="fas fa-file-alt me-1"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="game.html">
+                        <i class="fas fa-gamepad me-1"></i> Games
+                    </a>
+                </li>
+            </ul>
+            <a class="btn btn-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox"></div>
+        <div class="input-group">
+            <input type="text" id="userInput" class="form-control" placeholder="Type a message...">
+            <button class="btn btn-send" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chatBox");
+        const userInput = document.getElementById("userInput");
+        let messages = [];
+        function sendMessage() {
+    let message = userInput.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
+    userInput.value = "";
+
+    // Add user's message to history
+    messages.push({ role: "user", content: message });
+
+   fetch("https://tigerbhasha.onrender.com/api/openai", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "x-user-token": "tigerbhasha", // friend’s token name
+    },
+    body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: messages
+    })
+})
+
+    .then(response => response.json())
+    .then(data => {
+        const botReply = data.choices[0].message.content;
+        appendMessage("bot", botReply);
+
+        // Add bot's reply to history
+        messages.push({ role: "assistant", content: botReply });
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+        function appendMessage(sender, text) {
+            let messageDiv = document.createElement("div");
+            messageDiv.classList.add("chat-message", sender);
+            messageDiv.innerHTML = formatMessage(text);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+function formatMessage(text) {
+    // Convert Markdown-like formatting to HTML
+    // Code blocks
+    text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    // Inline code
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Line breaks
+    text = text.replace(/\n/g, '<br>');
+    return text;
+}
+
+    </script>
+</body>
+</html>

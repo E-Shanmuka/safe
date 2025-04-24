@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - myapp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+  <style>
+    .delete-btn { background: #e8491d; color: #fff; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+    #admin-content { display: none; } /* Hide content until password is entered */
+
+/* Light background for entire page */
+body {
+  background: #eaf1f8; /* soft light blue */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+/* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+.navbar .nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .nav-link:hover {
+  background-color: #f0f0f0;
+  color: #007bff !important;
+}
+
+/* Logout button styling */
+.navbar .btn-danger {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #ff4d4d;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background-color: #e60000;
+}
+
+  </style>
+
+</head>
+<body>
+  <script>
+    const password = "shannu@123";
+    const userInput = prompt("Enter Admin Password:");
+    if (userInput !== password) {
+      alert("Incorrect Password! Redirecting to Home...");
+      window.location.href = "/home"; // Redirect if password is wrong
+    } else {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("admin-content").style.display = "block";
+      });
+    }
+  </script>
+
+ <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="friend.html">
+                        <i class="fas fa-user-friends me-1"></i> Friend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="group.html">
+                        <i class="fas fa-users me-1"></i> Group
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="bot.html">
+                        <i class="fas fa-comments me-1"></i> Bot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gd.html">
+                        <i class="fas fa-users-cog me-1"></i> GD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ra.html">
+                        <i class="fas fa-file-alt me-1"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="game.html">
+                        <i class="fas fa-gamepad me-1"></i> Games
+                    </a>
+                </li>
+            </ul>
+            <a class="btn btn-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+  <div class="container mt-4" id="admin-content">
+    <h2>Admin Panel</h2>
+    <div class="mb-4">
+      <h3>Users</h3>
+      <ul id="user-list" class="list-group"></ul>
+    </div>
+    <div class="mb-4">
+      <h3>Blogs</h3>
+      <ul id="blog-list-admin" class="list-group"></ul>
+    </div>
+    <div class="mb-4">
+      <h3>Groups</h3>
+      <ul id="group-list-admin" class="list-group"></ul>
+    </div>
+<div class="mb-4">
+  <h3>Blog Comments</h3>
+  <ul id="comment-list-admin" class="list-group"></ul>
+</div>
+<div class="mb-4">
+  <h3>Group Chats</h3>
+  <ul id="groupchat-list-admin" class="list-group"></ul>
+</div>
+
+  </div>
+
+  <script>
+    function loadUsers() {
+      fetch('/api/users')
+        .then(res => res.json())
+        .then(users => {
+          const list = document.getElementById('user-list');
+          list.innerHTML = '';
+          users.forEach(user => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.textContent = `${user.username} (${user.email})`;
+            const btn = document.createElement('button');
+            btn.textContent = 'Delete';
+            btn.className = 'delete-btn';
+            btn.onclick = () => { fetch(`/api/users/${user.id}`, { method: 'DELETE' }).then(() => loadUsers()); };
+            li.appendChild(btn);
+            list.appendChild(li);
+          });
+        });
+    }
+    function loadBlogs() {
+      fetch('/api/blogs')
+        .then(res => res.json())
+        .then(blogs => {
+          const list = document.getElementById('blog-list-admin');
+          list.innerHTML = '';
+          blogs.forEach(blog => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.textContent = `${blog.username}: ${blog.content}`;
+            const btn = document.createElement('button');
+            btn.textContent = 'Delete';
+            btn.className = 'delete-btn';
+            btn.onclick = () => { fetch(`/api/blogs/${blog.id}`, { method: 'DELETE' }).then(() => loadBlogs()); };
+            li.appendChild(btn);
+            list.appendChild(li);
+          });
+        });
+    }
+    function loadGroups() {
+      fetch('/api/groups')
+        .then(res => res.json())
+        .then(groups => {
+          const list = document.getElementById('group-list-admin');
+          list.innerHTML = '';
+          groups.forEach(group => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.textContent = group.groupName;
+            const btn = document.createElement('button');
+            btn.textContent = 'Delete';
+            btn.className = 'delete-btn';
+            btn.onclick = () => { fetch(`/api/groups/${group.id}`, { method: 'DELETE' }).then(() => loadGroups()); };
+            li.appendChild(btn);
+            list.appendChild(li);
+          });
+        });
+    }
+
+  function loadComments() {
+    fetch('/api/blogs')
+      .then(res => res.json())
+      .then(blogs => {
+        const list = document.getElementById('comment-list-admin');
+        list.innerHTML = '';
+        blogs.forEach(blog => {
+          fetch(`/api/blogcomments?blogId=${blog.id}`)
+            .then(res => res.json())
+            .then(comments => {
+              comments.forEach(comment => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                // Handle media comment
+                if (comment.comment && comment.comment.startsWith('[file]')) {
+                  const [name, url] = comment.comment.replace('[file]', '').split('|');
+                  li.innerHTML = `${comment.username}: <a href="${url}" target="_blank">${name}</a>`;
+                } else {
+                  li.textContent = `${comment.username}: ${comment.comment}`;
+                }
+
+                const btn = document.createElement('button');
+                btn.textContent = 'Delete';
+                btn.className = 'delete-btn';
+                btn.onclick = () => {
+                  fetch(`/api/blogcomments/${comment.id}`, { method: 'DELETE' })
+                    .then(() => loadComments());
+                };
+                li.appendChild(btn);
+                list.appendChild(li);
+              });
+            });
+        });
+      });
+  }
+
+  function loadGroupChats() {
+    fetch('/api/groups')
+      .then(res => res.json())
+      .then(groups => {
+        const list = document.getElementById('groupchat-list-admin');
+        list.innerHTML = '';
+        groups.forEach(group => {
+          fetch(`/api/groupchats?groupId=${group.id}`)
+            .then(res => res.json())
+            .then(chats => {
+              chats.forEach(chat => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                // Handle media message
+                if (chat.message && chat.message.startsWith('[file]')) {
+                  const [name, url] = chat.message.replace('[file]', '').split('|');
+                  li.innerHTML = `${chat.username} (Group ${group.groupName}): <a href="${url}" target="_blank">${name}</a>`;
+                } else {
+                  li.textContent = `${chat.username} (Group ${group.groupName}): ${chat.message}`;
+                }
+
+                const btn = document.createElement('button');
+                btn.textContent = 'Delete';
+                btn.className = 'delete-btn';
+                btn.onclick = () => {
+                  fetch(`/api/groupchats/${chat.id}`, { method: 'DELETE' })
+                    .then(() => loadGroupChats());
+                };
+                li.appendChild(btn);
+                list.appendChild(li);
+              });
+            });
+        });
+      });
+  }
+
+
+   loadUsers();
+loadBlogs();
+loadGroups();
+loadComments();
+loadGroupChats();
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body { background-color: #f4f4f4; text-align: center; }
+        .game-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .sentence {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .correct { color: green; }
+        .incorrect { color: red; text-decoration: underline; }
+        .reaction { font-size: 40px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+
+    <h2 class="text-primary">Typing Speed Test ⌨️</h2>
+
+    <p class="sentence" id="sentence">Click "Start" to begin...</p>
+
+    <textarea id="userInput" class="form-control" rows="3" placeholder="Start typing here..." oninput="checkTyping()" disabled></textarea>
+
+    <p>Time Left: <span id="timer">30</span> sec</p>
+    <p>WPM: <span id="wpm">0</span></p>
+    <p>Accuracy: <span id="accuracy">100%</span></p>
+
+    <div class="reaction" id="reaction"></div>
+
+    <button id="startBtn" class="btn btn-success mt-2">Start</button>
+    <button id="restartBtn" class="btn btn-danger mt-2" disabled>Restart</button>
+</div>
+
+<script>
+    let sentences = [
+        "The quick brown fox jumps over the lazy dog.",
+        "Practice makes perfect, so keep typing fast!",
+        "Coding is fun when you type without errors.",
+        "Speed and accuracy go hand in hand in typing tests.",
+        "A great typist is both fast and accurate."
+    ];
+    
+    let currentSentence = "";
+    let timeLeft = 30;
+    let timerInterval;
+    let totalTyped = 0;
+    let correctTyped = 0;
+    
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("restartBtn").addEventListener("click", restartGame);
+
+    function startGame() {
+        document.getElementById("userInput").value = "";
+        document.getElementById("userInput").disabled = false;
+        document.getElementById("reaction").innerHTML = "";
+        document.getElementById("restartBtn").disabled = false;
+        document.getElementById("startBtn").disabled = true; // Disable Start Button
+
+        currentSentence = sentences[Math.floor(Math.random() * sentences.length)];
+        document.getElementById("sentence").innerHTML = currentSentence;
+        timeLeft = 30;
+        totalTyped = 0;
+        correctTyped = 0;
+        document.getElementById("timer").textContent = timeLeft;
+        document.getElementById("wpm").textContent = "0";
+        document.getElementById("accuracy").textContent = "100%";
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").textContent = timeLeft;
+            if (timeLeft === 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function checkTyping() {
+        let userText = document.getElementById("userInput").value;
+        let originalText = currentSentence.substring(0, userText.length);
+
+        totalTyped = userText.length;
+        correctTyped = 0;
+
+        let formattedText = "";
+        for (let i = 0; i < userText.length; i++) {
+            if (userText[i] === currentSentence[i]) {
+                formattedText += `<span class="correct">${userText[i]}</span>`;
+                correctTyped++;
+            } else {
+                formattedText += `<span class="incorrect">${userText[i]}</span>`;
+            }
+        }
+
+        formattedText += `<span>${currentSentence.substring(userText.length)}</span>`;
+        document.getElementById("sentence").innerHTML = formattedText;
+
+        let wpm = Math.round((correctTyped / 5) / ((30 - timeLeft) / 60));
+        let accuracy = totalTyped > 0 ? Math.round((correctTyped / totalTyped) * 100) : 100;
+
+        document.getElementById("wpm").textContent = wpm;
+        document.getElementById("accuracy").textContent = accuracy + "%";
+    }
+
+    function endGame() {
+        document.getElementById("userInput").disabled = true;
+        document.getElementById("startBtn").disabled = false; // Re-enable Start Button
+        let finalWPM = document.getElementById("wpm").textContent;
+        let finalAccuracy = document.getElementById("accuracy").textContent;
+
+        if (finalWPM > 40 && finalAccuracy === "100%") {
+            document.getElementById("reaction").innerHTML = "🔥 Amazing! You're a pro! 😍";
+        } else if (finalWPM > 30) {
+            document.getElementById("reaction").innerHTML = "🙂 Good Job! Keep Practicing!";
+        } else {
+            document.getElementById("reaction").innerHTML = "😞 Keep Practicing, You’ll Get Better!";
+        }
+    }
+
+    function restartGame() {
+        document.getElementById("userInput").disabled = true;
+        document.getElementById("sentence").innerHTML = "Click 'Start' to begin...";
+        document.getElementById("userInput").value = "";
+        document.getElementById("reaction").innerHTML = "";
+        document.getElementById("timer").textContent = "30";
+        document.getElementById("wpm").textContent = "0";
+        document.getElementById("accuracy").textContent = "100%";
+        document.getElementById("startBtn").disabled = false; // Enable Start Button
+        document.getElementById("restartBtn").disabled = true; // Disable Restart Button
+        clearInterval(timerInterval);
+    }
+
+    function goBack() {
+        window.location.href = "game.html";
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Group Discussion Generator</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* Background pattern with overlay */
+    body {
+      background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+      background-color: #eef7f0;
+      background-repeat: repeat;
+      background-attachment: fixed;
+      color: #222;
+      text-align: center;
+      padding-top: 56px;
+      position: relative;
+    }
+
+    /* Overlay to soften the background pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: -1;
+    }
+
+    /* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+/* Stunning Glassmorphism Navbar */
+.navbar {
+  background: linear-gradient(to right, #fce4ec, #e0f7fa, #fdfbfb); /* pastel pink to blue to white */
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  outline: 1px solid rgba(173, 216, 230, 0.3);
+  outline-offset: -4px;
+
+  padding: 12px 40px;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  z-index: 1000;
+}
+
+
+/* Visible text with dark base */
+.navbar .nav-link {
+  color: #222 !important;
+  font-weight: 600;
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin: 0 8px;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover glow */
+.navbar .nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #1e90ff, #8a2be2);
+  border-radius: 12px;
+  opacity: 0;
+  transition: 0.3s;
+  z-index: -1;
+}
+
+.navbar .nav-link:hover::before {
+  opacity: 1;
+}
+
+.navbar .nav-link:hover {
+  transform: translateY(-4px) scale(1.03) rotateX(5deg);
+  background-color: #e6f0ff; /* soft light blue */
+  box-shadow: 4px 4px 14px rgba(173, 216, 230, 0.4), 
+              -4px -4px 14px rgba(255, 255, 255, 0.6);
+  color: #2a2a2a; /* keep text readable */
+}
+
+.navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.2), transparent);
+  z-index: -1;
+  transition: all 0.3s ease-in-out;
+}
+
+
+/* Logout Button Stylish */
+.navbar .btn-danger {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 10px 20px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(255, 65, 108, 0.4);
+  transition: all 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background: linear-gradient(135deg, #ff4b2b, #ff416c);
+  box-shadow: 0 6px 25px rgba(255, 65, 108, 0.6);
+}
+
+
+   /* GD container styling */
+.gd-container {
+  flex: 1;
+  width: 80%;
+  max-width: 900px;
+  height: auto;
+  background: #fdfcff;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 100px auto 50px;
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    0 0 0 8px rgba(173, 216, 255, 0.5),     /* Thick outer border */
+    0 0 40px 12px rgba(173, 216, 255, 0.3);  /* Large soft glow */
+  background-clip: padding-box;
+  border: 3px solid rgba(173, 216, 255, 0.5); /* Stronger inner line */
+}
+
+
+.gd-container::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 22px;
+  background: radial-gradient(circle at top left, #c1f1ff, transparent 60%), 
+              radial-gradient(circle at bottom right, #d0d9ff, transparent 60%);
+  opacity: 0.4;
+}
+
+/* GD card styling */
+.gd-card {
+  background: #fdfcff;
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin-top: 15px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(200, 200, 255, 0.3);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #111;
+  text-align: left;
+}
+
+/* GD buttons */
+.gd-btn {
+  width: 48%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #b2f0e8, #d0caff);
+  color: #333;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.gd-btn:hover {
+  background: linear-gradient(135deg, #9debe0, #c0b3f5);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+    .gd-loader {
+      display: none;
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      border-top: 4px solid #222;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="friend.html">
+                        <i class="fas fa-user-friends me-1"></i> Friend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="group.html">
+                        <i class="fas fa-users me-1"></i> Group
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="bot.html">
+                        <i class="fas fa-comments me-1"></i> Bot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gd.html">
+                        <i class="fas fa-users-cog me-1"></i> GD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ra.html">
+                        <i class="fas fa-file-alt me-1"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="game.html">
+                        <i class="fas fa-gamepad me-1"></i> Games
+                    </a>
+                </li>
+            </ul>
+            <a class="btn btn-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+
+<div class="gd-container" id="gd-section">
+  <h2 class="mb-4">AI Group Discussion Generator</h2>
+  <input type="text" id="topic" class="form-control mb-3" placeholder="Enter a topic for discussion">
+  <div class="d-flex justify-content-between">
+    <button class="btn btn-success gd-btn" onclick="generateDiscussion('positive')">Pros</button>
+    <button class="btn btn-danger gd-btn" onclick="generateDiscussion('negative')">Cons</button>
+  </div>
+  <div class="gd-loader"></div>
+  <div id="discussion-output" class="mt-4"></div>
+</div>
+
+<script>
+ 
+
+  function generateDiscussion(type) {
+    const topic = document.getElementById("topic").value;
+    if (!topic) {
+      alert("Please enter a topic!");
+      return;
+    }
+
+    document.querySelector(".gd-loader").style.display = "block";
+    document.getElementById("discussion-output").innerHTML = "";
+
+    const prompt = type === "positive"
+      ? `List positive discussion points about '${topic}'.`
+      : `List negative discussion points about '${topic}'.`;
+
+  axios.post("https://tigerbhasha.onrender.com/api/openai", {
+  model: "gpt-3.5-turbo",
+  messages: [
+    { role: "system", content: "You are an AI that generates group discussion points." },
+    { role: "user", content: prompt }
+  ],
+  temperature: 0.7
+}, {
+  headers: {
+    "Content-Type": "application/json",
+    "x-user-token": "tigerbhasha"  // your proxy token
+  }
+})
+
+    .then(response => {
+      document.querySelector(".gd-loader").style.display = "none";
+      const result = response.data.choices[0].message.content;
+      document.getElementById("discussion-output").innerHTML = `<div class="gd-card">${result.replace(/\n/g, "<br>")}</div>`;
+    })
+    .catch(error => {
+      document.querySelector(".gd-loader").style.display = "none";
+      document.getElementById("discussion-output").innerHTML = `<p class="text-danger">Error generating discussion points.</p>`;
+      console.error(error);
+    });
+  }
+</script>
+
+</body>
+</html>

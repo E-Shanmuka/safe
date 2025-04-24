@@ -1,0 +1,11 @@
+fetch("https://tigerbhasha.onrender.com/api/openai", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "x-user-token": "tigerbhasha", // friend’s token name
+    },
+    body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: messages
+    })
+})

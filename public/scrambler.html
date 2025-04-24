@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scrambler Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .game-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .scrambled-word {
+            font-size: 30px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+        }
+        .hint {
+            display: none;
+            font-style: italic;
+            color: #666;
+        }
+        .result {
+            font-size: 22px;
+            margin-top: 15px;
+        }
+        .emoji {
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+
+    <h2 class="text-primary">Word Scrambler Game 🔠</h2>
+
+    <p>Unscramble the word!</p>
+
+    <div class="scrambled-word" id="scrambledWord">Loading...</div>
+
+    <input type="text" id="userInput" class="form-control mb-3" placeholder="Enter correct word">
+    <button class="btn btn-success" onclick="checkAnswer()">Submit</button>
+    <button class="btn btn-warning" onclick="showHint()">Hint</button>
+    <button class="btn btn-danger" onclick="skipWord()">Skip</button>
+
+    <p class="hint" id="hintText"></p>
+
+    <p class="result" id="result"></p>
+    <p>Score: <span id="score">0</span></p>
+</div>
+
+<script>
+    const words = [
+        {word: "elephant", hint: "A large mammal with a trunk 🐘"},
+        {word: "banana", hint: "A yellow fruit 🍌"},
+        {word: "computer", hint: "A device for computing 💻"},
+        {word: "guitar", hint: "A musical instrument 🎸"},
+        {word: "pencil", hint: "Used for writing ✏️"},
+        {word: "tiger", hint: "A wild big cat 🐅"},
+        {word: "planet", hint: "Orbits the sun 🌍"},
+        {word: "butterfly", hint: "A colorful flying insect 🦋"},
+        {word: "chocolate", hint: "A sweet treat 🍫"},
+        {word: "rainbow", hint: "Appears after rain 🌈"}
+    ];
+
+    let currentWordIndex = -1;
+    let currentWord = "";
+    let scrambled = "";
+    let score = 0;
+
+    function shuffleWord(word) {
+        return word.split("").sort(() => Math.random() - 0.5).join("");
+    }
+
+    function nextWord() {
+        currentWordIndex = (currentWordIndex + 1) % words.length;
+        currentWord = words[currentWordIndex].word;
+        scrambled = shuffleWord(currentWord);
+        document.getElementById("scrambledWord").innerText = scrambled;
+        document.getElementById("userInput").value = "";
+        document.getElementById("hintText").style.display = "none";
+        document.getElementById("result").innerText = "";
+    }
+
+    function checkAnswer() {
+        let userInput = document.getElementById("userInput").value.trim().toLowerCase();
+        if (userInput === currentWord) {
+            score += 10;
+            document.getElementById("result").innerHTML = "✅ Correct! " + getReaction(true);
+        } else {
+            document.getElementById("result").innerHTML = "❌ Incorrect! Try again.";
+            return;
+        }
+        document.getElementById("score").innerText = score;
+        setTimeout(nextWord, 1000);
+    }
+
+    function showHint() {
+        document.getElementById("hintText").innerText = "Hint: " + words[currentWordIndex].hint;
+        document.getElementById("hintText").style.display = "block";
+        score -= 3;
+        document.getElementById("score").innerText = score;
+    }
+
+    function skipWord() {
+        score -= 2;
+        document.getElementById("score").innerText = score;
+        document.getElementById("result").innerHTML = "⏩ Skipped!";
+        setTimeout(nextWord, 1000);
+    }
+
+    function getReaction(correct) {
+        const happyEmojis = ["😀", "🎉", "👏", "😊"];
+        const sadEmojis = ["😢", "😞", "👎", "💔"];
+        let emoji = correct ? happyEmojis[Math.floor(Math.random() * happyEmojis.length)] 
+                            : sadEmojis[Math.floor(Math.random() * sadEmojis.length)];
+        return `<span class="emoji">${emoji}</span>`;
+    }
+
+    function goBack() {
+        window.location.href = "game.html";
+    }
+
+    nextWord();
+</script>
+
+</body>
+</html>

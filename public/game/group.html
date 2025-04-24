@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Group Chat - myapp</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+  <style>
+
+/* Container Adjustments */
+.row {
+   background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+      background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+}
+
+/* Left Sidebar */
+.col-md-4 {
+  width: 22% !important; /* Reduce width to about 55% of original col-md-4 (which is ~33.33%) */
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+margin-right:20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+  height: 100%; /* Keep full height */
+  overflow-y: auto; /* Scroll if needed */
+}
+
+
+
+/* Right Chat Area */
+.col-md-8 {
+     background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+      background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+}
+
+/* Chat Box */
+#group-chat-box {
+    background-color: #ffffff;
+  border-radius: 15px;
+  padding: 15px;
+  min-height: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #dce3f0;
+}
+
+/* Input Group */
+.input-group input {
+  border-radius: 10px 0 0 10px;
+}
+
+.input-group .btn {
+  border-radius: 0 10px 10px 0;
+}
+
+/* Voice Controls & Toolbar Buttons */
+#voice-controls,
+#whiteboard-toolbar {
+     background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+      background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Buttons Style */
+.btn {
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.03);
+}
+
+/* Whiteboard Canvas */
+#whiteboard-container {
+  border: 1px solid #cdd6e6;
+  border-radius: 12px;
+  padding: 10px;
+  background: #ffffff;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.03);
+}
+
+#whiteboard {
+  background: url('https://www.toptal.com/designers/subtlepatterns/uploads/symphony.png');
+  background-color: #f9f9f9;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  width: 100%;
+  height: 300px;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+
+
+
+
+
+
+    .chat-box {
+      border: 1px solid #ddd;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #fafafa;
+    }
+    #group-list {
+      margin-bottom: 15px;
+    }
+    #whiteboard-container {
+      border: 1px solid #ddd;
+      height: 300px;
+      position: relative;
+    }
+    #whiteboard {
+      width: 100%;
+      height: 100%;
+    }
+    #whiteboard-toolbar {
+      margin-bottom: 10px;
+    }
+    #mic-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: red;
+      margin-left: 10px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+body {
+   background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+      background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+/* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+.navbar .nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .nav-link:hover {
+  background-color: #f0f0f0;
+  color: #007bff !important;
+}
+
+/* Logout button styling */
+.navbar .btn-danger {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #ff4d4d;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background-color: #e60000;
+}
+
+
+
+#group-chat-input {
+  border-radius: 25px;
+  padding: 10px 15px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+}
+
+#send-group-chat-btn {
+  border-radius: 25px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar including Bot link -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container">
+      
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="home.html">
+                        <i class="fas fa-home me-1"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="friend.html">
+                        <i class="fas fa-user-friends me-1"></i> Friend
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="group.html">
+                        <i class="fas fa-users me-1"></i> Group
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="bot.html">
+                        <i class="fas fa-comments me-1"></i> Bot
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="gd.html">
+                        <i class="fas fa-users-cog me-1"></i> GD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ra.html">
+                        <i class="fas fa-file-alt me-1"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="game.html">
+                        <i class="fas fa-gamepad me-1"></i> Games
+                    </a>
+                </li>
+            </ul>
+            <a class="btn btn-danger" href="/logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+  
+  <div class="container mt-4">
+    <div class="row">
+      <!-- Left Sidebar: List of Groups -->
+      <div class="col-md-4">
+        <h4>Groups</h4>
+        <div id="group-list" class="list-group"></div>
+        <button id="create-group-btn" class="btn btn-success mt-2">Create Group</button>
+      </div>
+      
+      <!-- Right: Group Chat and Tools -->
+      <div class="col-md-8">
+        <h2 id="group-chat-header"style=background-color: #ffffff;>Group Chat</h2>
+        <div id="group-chat-box" class="chat-box mb-3"></div>
+        <div class="input-group mb-3">
+          <input type="text" id="group-chat-input" class="form-control" placeholder="Type your message...">
+          <button id="send-group-chat-btn" class="btn btn-primary">Send</button>
+        </div>
+<form id="group-upload-form" style="margin-top:10px;">
+
+  
+</form>
+
+        <!-- Mic Controls -->
+        <div id="voice-controls" class="mb-3">
+          <button id="start-mic" class="btn btn-secondary">Start Mic</button>
+          <button id="stop-mic" class="btn btn-secondary">Stop Mic</button>
+          <span id="mic-indicator"></span>
+        </div>
+        <!-- Whiteboard Toolbar -->
+        <div id="whiteboard-toolbar" class="d-flex mb-2">
+          <button id="tool-pencil" class="btn btn-outline-primary btn-sm me-2">Pencil</button>
+          <button id="tool-eraser" class="btn btn-outline-secondary btn-sm me-2">Eraser</button>
+          <input type="color" id="color-picker" class="form-control form-control-color me-2" value="#000000" title="Choose color" style="width:50px;">
+          <button id="tool-clear" class="btn btn-danger btn-sm">Clear</button>
+        </div>
+        <!-- Whiteboard Container -->
+        <div id="whiteboard-container" class="mb-3">
+          <canvas id="whiteboard"></canvas>
+        </div>
+        <!-- Screen Share Button -->
+        <button id="share-screen" class="btn btn-warning">Share Screen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize Socket.IO and set logged-in user
+    const socket = io();
+    const loggedInUser = sessionStorage.getItem('username');
+    socket.emit('register user', { username: loggedInUser });
+    
+    // Load group list and manage join/leave
+    function loadGroups() {
+      fetch('/api/groups')
+        .then(res => res.json())
+        .then(groups => {
+          const groupList = document.getElementById('group-list');
+          groupList.innerHTML = '';
+          groups.forEach(group => {
+            const a = document.createElement('a');
+            a.href = "#";
+            a.className = "list-group-item list-group-item-action";
+            a.textContent = group.groupName;
+            a.dataset.groupId = group.id;
+            a.onclick = () => {
+              // If already in a different group, leave that room first
+              if (window.currentGroupId && window.currentGroupId !== group.id) {
+                socket.emit('leave group', { groupId: window.currentGroupId, username: loggedInUser });
+              }
+              document.getElementById('group-chat-header').textContent = "Group: " + group.groupName;
+              window.currentGroupId = group.id;
+              // Join the new group room
+             socket.emit('check private group', { groupId: group.id }, (isPrivate) => {
+    if(isPrivate) {
+        const code = prompt("Enter Private Group Code:");
+        socket.emit('verify group code', { groupId: group.id, code: code }, (isValid) => {
+            if(isValid) {
+                joinGroup(group);
+            } else {
+                alert("Wrong Code!");
+            }
+        });
+    } else {
+        joinGroup(group);
+    }
+});
+
+function joinGroup(group) {
+    if (window.currentGroupId && window.currentGroupId !== group.id) {
+        socket.emit('leave group', { groupId: window.currentGroupId, username: loggedInUser });
+    }
+    document.getElementById('group-chat-header').textContent = "Group: " + group.groupName;
+    window.currentGroupId = group.id;
+    socket.emit('join group', { groupId: group.id, username: loggedInUser });
+    loadGroupChats(group.id);
+}
+
+            };
+            groupList.appendChild(a);
+          });
+        });
+    }
+    loadGroups();
+    socket.on('new group', () => { loadGroups(); });
+    
+    // Create group event
+   document.getElementById('create-group-btn').addEventListener('click', () => {
+    const groupName = prompt("Enter group name:");
+    if(groupName) {
+        const isPrivate = confirm("Make it Private Group?");
+        let code = null;
+
+        if(isPrivate) {
+            code = prompt("Enter 5-digit Private Code:");
+        }
+
+        socket.emit('create group', { 
+            groupName: groupName, 
+            createdBy: loggedInUser, 
+            isPrivate: isPrivate, 
+            code: code 
+        });
+    }
+});
+
+    // Load group chat messages
+    function loadGroupChats(groupId) {
+      fetch(`/api/groupchats?groupId=${groupId}`)
+        .then(res => res.json())
+        .then(chats => {
+          const box = document.getElementById('group-chat-box');
+          box.innerHTML = '';
+          chats.forEach(chat => {
+            const div = document.createElement('div');
+            div.textContent = `${chat.username}: ${chat.message}`;
+            box.appendChild(div);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+    
+    // Send group chat message
+   document.getElementById('send-group-chat-btn').addEventListener('click', async () => {
+  const messageInput = document.getElementById('group-chat-input');
+  const fileInput = document.getElementById('group-file-input');
+  const groupId = window.currentGroupId;
+  const message = messageInput.value.trim();
+  const file = fileInput.files[0];
+
+  if (!groupId) return alert("Please select a group first.");
+
+  // If file is selected, upload it first
+  if (file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch('/chat-upload', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+
+    let filePreview = '';
+    if (data.mimeType.startsWith('image/')) {
+      filePreview = `<img src="data:${data.mimeType};base64,${data.base64}" style="max-width:200px; display:block; margin-top:5px;" />`;
+    } else {
+      filePreview = `<a href="data:${data.mimeType};base64,${data.base64}" download="${data.name}">${data.name}</a>`;
+    }
+
+    socket.emit('group message', {
+      groupId,
+      username: loggedInUser,
+      message: `${message}<br>${filePreview}`
+    });
+
+    fileInput.value = ''; // reset file input
+  } else if (message !== '') {
+    socket.emit('group message', {
+      groupId,
+      username: loggedInUser,
+      message
+    });
+  }
+
+  messageInput.value = '';
+});
+
+
+document.getElementById('group-upload-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const input = document.getElementById('group-file-input');
+  const file = input.files[0];
+  if (!file || !window.currentGroupId) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  fetch('/chat-upload', {
+    method: 'POST',
+    body: formData
+  }).then(res => res.json())
+    .then(data => {
+      const fileMessage = {
+        groupId: window.currentGroupId,
+        username: loggedInUser,
+        message: `<a href="data:${data.mimeType};base64,${data.base64}" download="${data.name}">${data.name}</a>`
+      };
+      socket.emit('group message', fileMessage);
+    });
+});
+
+    socket.on('group message', (data) => { appendGroupMessage(data.username, data.message); });
+function appendGroupMessage(sender, message) {
+  const box = document.getElementById('group-chat-box');
+  const div = document.createElement('div');
+  const isMe = sender === loggedInUser;
+
+  div.className = isMe ? 'chat-bubble right' : 'chat-bubble left';
+  div.innerHTML = `
+    <div class="bubble-sender">${sender}</div>
+    <div class="bubble-content">${message}</div>
+  `;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+
+
+    
+    // --- Whiteboard Functionality ---
+    // Get the canvas and context
+    const canvas = document.getElementById('whiteboard');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    let drawing = false;
+    let currentTool = 'pencil';
+    let currentColor = document.getElementById('color-picker').value;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = currentColor;
+    
+    // Local whiteboard events with continuous stroke
+    // We'll also emit "whiteboard start", "whiteboard draw", and "whiteboard end" events.
+    canvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+      socket.emit('whiteboard start', { 
+        sender: loggedInUser, 
+        x: e.offsetX, 
+        y: e.offsetY, 
+        color: currentColor, 
+        tool: currentTool 
+      });
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      if (drawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        socket.emit('whiteboard draw', { 
+          sender: loggedInUser, 
+          x: e.offsetX, 
+          y: e.offsetY 
+        });
+      }
+    });
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+      socket.emit('whiteboard end', { sender: loggedInUser });
+    });
+    document.getElementById('tool-clear').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      socket.emit('whiteboard clear');
+    });
+    
+    // Remote whiteboard events:
+    // We'll maintain a dictionary for the last point for each sender.
+    const remotePaths = {};
+    
+    socket.on('whiteboard start', (data) => {
+      remotePaths[data.sender] = { x: data.x, y: data.y, color: data.color, tool: data.tool };
+    });
+    
+    socket.on('whiteboard draw', (data) => {
+      const last = remotePaths[data.sender];
+      if (last) {
+        ctx.beginPath();
+        if (last.tool === 'pencil') {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = last.color;
+        } else {
+          ctx.globalCompositeOperation = 'destination-out';
+        }
+        ctx.moveTo(last.x, last.y);
+        ctx.lineTo(data.x, data.y);
+        ctx.stroke();
+        remotePaths[data.sender] = { ...last, x: data.x, y: data.y };
+      }
+    });
+    
+    socket.on('whiteboard end', (data) => {
+      delete remotePaths[data.sender];
+    });
+    
+    socket.on('whiteboard clear', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+    
+    // Whiteboard toolbar events
+    document.getElementById('tool-pencil').addEventListener('click', () => {
+      currentTool = 'pencil';
+      ctx.globalCompositeOperation = 'source-over';
+    });
+    document.getElementById('tool-eraser').addEventListener('click', () => {
+      currentTool = 'eraser';
+      ctx.globalCompositeOperation = 'destination-out';
+    });
+    document.getElementById('color-picker').addEventListener('change', (e) => {
+      currentColor = e.target.value;
+      if (currentTool === 'pencil') {
+        ctx.strokeStyle = currentColor;
+      }
+    });
+    
+    // --- Voice Chat (Mic) Functionality using WebRTC ---
+    let micStream = null;
+    let peerConnections = {};  // Holds RTCPeerConnections keyed by remote username
+    const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+    
+    async function startMic() {
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        document.getElementById('mic-indicator').style.backgroundColor = 'green';
+       socket.emit('voice-ready', { username: loggedInUser, groupId: window.currentGroupId });
+
+      } catch (err) {
+        console.error("Error starting mic:", err);
+        alert("Error accessing microphone: " + err.message);
+      }
+    }
+    
+    function stopMic() {
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+      }
+      document.getElementById('mic-indicator').style.backgroundColor = 'red';
+      for (let user in peerConnections) {
+        if (peerConnections[user]) {
+          peerConnections[user].close();
+        }
+      }
+      peerConnections = {};
+      socket.emit('voice-stop', { username: loggedInUser });
+    }
+    
+    socket.on('voice-offer', async (data) => {
+      const fromUser = data.from;
+      if (!peerConnections[fromUser]) {
+        peerConnections[fromUser] = new RTCPeerConnection(rtcConfig);
+        if (micStream) {
+          micStream.getTracks().forEach(track => {
+            peerConnections[fromUser].addTrack(track, micStream);
+          });
+        }
+        peerConnections[fromUser].onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit('voice-candidate', { to: fromUser, candidate: event.candidate, from: loggedInUser });
+          }
+        };
+        peerConnections[fromUser].ontrack = (event) => {
+          let audioElem = document.getElementById('audio-' + fromUser);
+          if (!audioElem) {
+            audioElem = document.createElement('audio');
+            audioElem.id = 'audio-' + fromUser;
+            audioElem.autoplay = true;
+            document.body.appendChild(audioElem);
+          }
+          audioElem.srcObject = event.streams[0];
+        };
+      }
+      await peerConnections[fromUser].setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await peerConnections[fromUser].createAnswer();
+      await peerConnections[fromUser].setLocalDescription(answer);
+      socket.emit('voice-answer', { to: fromUser, answer: answer, from: loggedInUser });
+    });
+    
+    socket.on('voice-answer', async (data) => {
+      const fromUser = data.from;
+      if (peerConnections[fromUser]) {
+        await peerConnections[fromUser].setRemoteDescription(new RTCSessionDescription(data.answer));
+      }
+    });
+    
+    socket.on('voice-candidate', async (data) => {
+      const fromUser = data.from;
+      if (peerConnections[fromUser]) {
+        try {
+          await peerConnections[fromUser].addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (err) {
+          console.error("Error adding ICE candidate:", err);
+        }
+      }
+    });
+    
+    socket.on('voice-users', async (data) => {
+      data.users.forEach(async (user) => {
+        if (user !== loggedInUser && !peerConnections[user]) {
+          peerConnections[user] = new RTCPeerConnection(rtcConfig);
+          if (micStream) {
+            micStream.getTracks().forEach(track => {
+              peerConnections[user].addTrack(track, micStream);
+            });
+          }
+          peerConnections[user].onicecandidate = (event) => {
+            if (event.candidate) {
+              socket.emit('voice-candidate', { to: user, candidate: event.candidate, from: loggedInUser });
+            }
+          };
+          peerConnections[user].ontrack = (event) => {
+            let audioElem = document.getElementById('audio-' + user);
+            if (!audioElem) {
+              audioElem = document.createElement('audio');
+              audioElem.id = 'audio-' + user;
+              audioElem.autoplay = true;
+              document.body.appendChild(audioElem);
+            }
+            audioElem.srcObject = event.streams[0];
+          };
+          const offer = await peerConnections[user].createOffer();
+          await peerConnections[user].setLocalDescription(offer);
+          socket.emit('voice-offer', { to: user, offer: offer, from: loggedInUser });
+        }
+      });
+    });
+    
+    document.getElementById('start-mic').addEventListener('click', async () => {
+      if (!micStream) {
+        await startMic();
+      }
+    });
+    document.getElementById('stop-mic').addEventListener('click', () => {
+      stopMic();
+    });
+    
+    // --- Screen Sharing (WebRTC-based) ---
+    let screenStream = null;
+    let screenPeerConnections = {}; // Store RTCPeerConnections keyed by remote username
+    const screenRtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+    
+    async function startScreenShare() {
+      try {
+        screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        socket.emit('screen-share-ready', { username: loggedInUser, groupId: window.currentGroupId });
+        const localVideo = document.createElement('video');
+        localVideo.srcObject = screenStream;
+        localVideo.autoplay = true;
+        localVideo.controls = true;
+        localVideo.style.width = '100%';
+        localVideo.style.marginTop = '10px';
+        document.getElementById('group-chat-box').appendChild(localVideo);
+        screenStream.getVideoTracks()[0].onended = () => {
+          localVideo.remove();
+          socket.emit('screen-share-stop', { username: loggedInUser });
+          for (const user in screenPeerConnections) {
+            screenPeerConnections[user].close();
+          }
+          screenPeerConnections = {};
+        };
+        socket.on('screen-share-users', async (data) => {
+          for (const user of data.users) {
+            if (user !== loggedInUser && !screenPeerConnections[user]) {
+              screenPeerConnections[user] = new RTCPeerConnection(screenRtcConfig);
+              screenStream.getTracks().forEach(track => {
+                screenPeerConnections[user].addTrack(track, screenStream);
+              });
+              screenPeerConnections[user].onicecandidate = (event) => {
+                if (event.candidate) {
+                  socket.emit('screen-share-candidate', {
+                    to: user,
+                    candidate: event.candidate,
+                    from: loggedInUser
+                  });
+                }
+              };
+              const offer = await screenPeerConnections[user].createOffer();
+              await screenPeerConnections[user].setLocalDescription(offer);
+              socket.emit('screen-share-offer', { to: user, offer: offer, from: loggedInUser });
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Screen sharing error:", err);
+        alert("Screen sharing failed: " + err.message);
+      }
+    }
+    
+    document.getElementById('share-screen').addEventListener('click', startScreenShare);
+    
+    socket.on('screen-share-offer', async (data) => {
+      const fromUser = data.from;
+      if (!screenPeerConnections[fromUser]) {
+        screenPeerConnections[fromUser] = new RTCPeerConnection(screenRtcConfig);
+        screenPeerConnections[fromUser].onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit('screen-share-candidate', { to: fromUser, candidate: event.candidate, from: loggedInUser });
+          }
+        };
+        screenPeerConnections[fromUser].ontrack = (event) => {
+          let videoElem = document.getElementById('screen-video-' + fromUser);
+          if (!videoElem) {
+            videoElem = document.createElement('video');
+            videoElem.id = 'screen-video-' + fromUser;
+            videoElem.autoplay = true;
+            videoElem.controls = true;
+            videoElem.style.width = '100%';
+            videoElem.style.marginTop = '10px';
+            document.getElementById('group-chat-box').appendChild(videoElem);
+          }
+          videoElem.srcObject = event.streams[0];
+        };
+      }
+      await screenPeerConnections[fromUser].setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await screenPeerConnections[fromUser].createAnswer();
+      await screenPeerConnections[fromUser].setLocalDescription(answer);
+      socket.emit('screen-share-answer', { to: fromUser, answer: answer, from: loggedInUser });
+    });
+    
+    socket.on('screen-share-answer', async (data) => {
+      const fromUser = data.from;
+      if (screenPeerConnections[fromUser]) {
+        await screenPeerConnections[fromUser].setRemoteDescription(new RTCSessionDescription(data.answer));
+      }
+    });
+    
+    socket.on('screen-share-candidate', async (data) => {
+      const fromUser = data.from;
+      if (screenPeerConnections[fromUser]) {
+        try {
+          await screenPeerConnections[fromUser].addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (err) {
+          console.error("Error adding ICE candidate for screen share:", err);
+        }
+      }
+    });
+    
+  </script>
+</body>
+</html>

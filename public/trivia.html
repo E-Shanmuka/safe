@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Trivia Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4; }
+        #container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px gray; }
+        .btn { display: block; width: 100%; padding: 10px; margin: 5px 0; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
+        .correct { background: #28a745 !important; }
+        .wrong { background: #dc3545 !important; }
+        #score { font-size: 18px; margin-top: 10px; }
+        #back-btn { display: block; margin-top: 20px; padding: 10px; background: #333; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+
+    <div id="container">
+        <h2>Interview Trivia Game</h2>
+        <p id="question">Loading...</p>
+        <div id="answers"></div>
+        <p id="score">Score: 0</p>
+        <a id="back-btn" href="game.html">⬅ Back to Game</a>
+    </div>
+
+    <script>
+        const questions = [
+            // IT Interview Questions
+            { question: "What does HTML stand for?", answers: ["Hyper Text Markup Language", "High Tech Modern Language", "Hyperlink and Text Markup Language", "Home Tool Markup Language"], correct: 0 },
+            { question: "Which language is used for web apps?", answers: ["Java", "Python", "JavaScript", "C++"], correct: 2 },
+            { question: "What does SQL stand for?", answers: ["Structured Query Language", "Sequential Question Language", "System Query List", "Syntax Query Language"], correct: 0 },
+            { question: "Which is not a programming language?", answers: ["Python", "HTML", "Java", "C++"], correct: 1 },
+            { question: "What is an API?", answers: ["Application Programming Interface", "Automated Processing Integration", "Applied Protocol Indicator", "Advanced Program Interface"], correct: 0 },
+            { question: "Which is a front-end framework?", answers: ["Django", "Spring Boot", "React", "Flask"], correct: 2 },
+            { question: "What does CSS stand for?", answers: ["Cascading Style Sheets", "Creative Style Syntax", "Computer Style System", "Coded Style Structure"], correct: 0 },
+            { question: "What is the default port for HTTP?", answers: ["80", "8080", "443", "21"], correct: 0 },
+            { question: "Which database is NoSQL?", answers: ["MySQL", "MongoDB", "PostgreSQL", "Oracle"], correct: 1 },
+            { question: "What is the time complexity of binary search?", answers: ["O(n)", "O(log n)", "O(n^2)", "O(1)"], correct: 1 },
+
+            // Non-IT Interview Questions
+            { question: "Who was the first President of the USA?", answers: ["George Washington", "Abraham Lincoln", "John Adams", "Thomas Jefferson"], correct: 0 },
+            { question: "Which is the largest planet in our Solar System?", answers: ["Mars", "Earth", "Jupiter", "Saturn"], correct: 2 },
+            { question: "What is the capital of Japan?", answers: ["Seoul", "Tokyo", "Beijing", "Bangkok"], correct: 1 },
+            { question: "Who wrote 'Romeo and Juliet'?", answers: ["Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"], correct: 0 },
+            { question: "Which organ pumps blood?", answers: ["Lungs", "Brain", "Heart", "Liver"], correct: 2 },
+            { question: "How many continents are there?", answers: ["5", "6", "7", "8"], correct: 2 },
+            { question: "What is the hardest natural substance?", answers: ["Iron", "Gold", "Diamond", "Quartz"], correct: 2 },
+            { question: "Which country is called 'Land of the Rising Sun'?", answers: ["China", "India", "Japan", "South Korea"], correct: 2 },
+            { question: "Who invented the telephone?", answers: ["Thomas Edison", "Nikola Tesla", "Alexander Graham Bell", "Isaac Newton"], correct: 2 },
+            { question: "What is the capital of France?", answers: ["Berlin", "Madrid", "Paris", "Rome"], correct: 2 },
+            { question: "How many bones are in the human body?", answers: ["206", "210", "150", "180"], correct: 0 },
+            { question: "Which gas do humans breathe in?", answers: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"], correct: 0 },
+            { question: "What is the chemical symbol for gold?", answers: ["Gd", "Au", "Ag", "Pt"], correct: 1 },
+            { question: "Which is the smallest planet in the Solar System?", answers: ["Mercury", "Venus", "Mars", "Neptune"], correct: 0 },
+
+            { question: "How many colors are in a rainbow?", answers: ["5", "6", "7", "8"], correct: 2 },
+            { question: "What is the capital of Australia?", answers: ["Sydney", "Melbourne", "Canberra", "Brisbane"], correct: 2 }
+        ];
+
+        let selectedQuestions = [];
+        let currentQuestion = 0;
+        let score = 0;
+
+        function getRandomQuestions() {
+            let shuffled = [...questions].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 10); // Select 10 random questions
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= selectedQuestions.length) {
+                document.getElementById("question").innerText = "Game Over! 🎉 Your Score: " + score;
+                document.getElementById("answers").innerHTML = "";
+                return;
+            }
+
+            let q = selectedQuestions[currentQuestion];
+            document.getElementById("question").innerText = q.question;
+            document.getElementById("answers").innerHTML = "";
+
+            q.answers.forEach((answer, index) => {
+                let button = document.createElement("button");
+                button.className = "btn";
+                button.innerText = answer;
+                button.onclick = () => checkAnswer(index);
+                document.getElementById("answers").appendChild(button);
+            });
+
+            document.getElementById("score").innerText = "Score: " + score;
+        }
+
+        function checkAnswer(index) {
+            let buttons = document.querySelectorAll(".btn");
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (index === selectedQuestions[currentQuestion].correct) {
+                buttons[index].classList.add("correct");
+                score += 10;
+            } else {
+                buttons[index].classList.add("wrong");
+                buttons[selectedQuestions[currentQuestion].correct].classList.add("correct");
+            }
+
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1000);
+        }
+
+        selectedQuestions = getRandomQuestions();
+        loadQuestion();
+    </script>
+</body>
+</html>

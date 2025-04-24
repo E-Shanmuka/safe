@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Private Chat - myapp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    
+
+/* Light background for entire page */
+body {
+  background: url('https://www.toptal.com/designers/subtlepatterns/uploads/skulls.png');
+  background-color: #eef7f0;
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
+
+/* Navbar styled like a container */
+.navbar {
+  background-color: white !important;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin: 20px;
+  padding: 10px 20px;
+}
+
+/* Nav links style */
+.navbar .nav-link {
+  color: #333 !important;
+  font-weight: 500;
+  padding: 10px 15px;
+  border-radius: 10px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar .nav-link:hover {
+  background-color: #f0f0f0;
+  color: #007bff !important;
+}
+
+/* Logout button styling */
+.navbar .btn-danger {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #ff4d4d;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+  background-color: #e60000;
+}
+
+.container {
+   margin: 0 auto;
+  background: #fdfdfd;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  
+}
+
+/* Chat bubble base style */
+#private-chat-box div {
+  margin-bottom: 15px;
+  padding: 10px 14px;
+  background-color: #f0f0f0;
+  border-radius: 14px;
+  max-width: 75%;
+  font-family: 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  word-break: break-word;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  clear: both;
+}
+
+/* Messages from YOU (right side) */
+#private-chat-box div.sent {
+  background-color: #d1e7dd;
+  margin-left: auto;
+  text-align: right;
+  border-bottom-right-radius: 0;
+}
+
+/* Messages from OTHER person (left side) */
+#private-chat-box div.received {
+  background-color: #f0f0f0;
+  margin-right: auto;
+  text-align: left;
+  border-bottom-left-radius: 0;
+}
+
+/* Username styling */
+#private-chat-box div strong {
+  display: block;
+  font-weight: bold;
+  color: #202020;
+  margin-bottom: 5px;
+}
+
+/* Message text */
+#private-chat-box div span {
+  font-weight: normal;
+  color: #333;
+}
+
+/* Media styling */
+#private-chat-box div img,
+#private-chat-box div video,
+#private-chat-box div audio {
+  margin-top: 8px;
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+
+
+
+/* Chat Header */
+#private-chat-header {
+  background: #e9f0ff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-weight: 500;
+  color: #2a4d9b;
+}
+
+/* Chat Box */
+#private-chat-box {
+  height: 300px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+}
+.container h2 {
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+.input-group {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+#private-chat-input {
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  outline: none;
+}
+#send-private-chat-btn {
+  border-radius: 0;
+}
+
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary  style="margin-bottom: 40px;">
+    <div class="container">
+     
+      <div class="collapse navbar-collapse justify-content-start">
+        <ul class="navbar-nav me-auto">
+           <li class="nav-item"><a class="nav-link" href="home.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="friend.html">Friend</a></li>
+          <li class="nav-item"><a class="nav-link" href="group.html">Group</a></li>
+          <li class="nav-item"><a class="nav-link" href="bot.html">Bot</a></li>
+          <li class="nav-item"><a class="nav-link" href="gd.html">GD</a></li>
+         <li class="nav-item"><a class="nav-link" href="ra.html">Resume</a></li>
+
+          <li class="nav-item"><a class="nav-link" href="game.html">Games</a></li>
+        </ul>
+        <a class="btn btn-danger" href="/logout">Logout</a>
+      </div>
+    </div>
+  </nav >
+<div class="mb-3" style="position: relative; max-width: 700px; margin: 20px auto; padding-top: 0;">
+  <div class="input-group" style="margin-top: 0; border: 1px solid #ccc; border-radius: 10px;">
+    <input type="text" id="search-user" class="form-control" placeholder="Search users..."
+      style="border: none; outline: none; padding: 14px 16px; font-size: 16px;">
+    <button id="search-btn" class="btn btn-primary" style="border-radius: 0 10px 10px 0; padding: 14px 20px;">Search</button>
+  </div>
+
+  <!-- Search results container -->
+  <div id="search-results"
+  style="position: absolute; width: 100%; background: #ffffff; border: 1px solid #ddd; border-radius: 0 0 12px 12px; display: none; z-index: 1000; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); max-height: 300px; overflow-y: auto; padding: 10px;">
+</div>
+
+
+
+
+
+<script>
+document.getElementById("search-user").addEventListener("input", function() {
+  let searchResults = document.getElementById("search-results");
+  if (this.value.trim() !== "") {
+    searchResults.style.display = "block";
+    searchResults.innerHTML = "<p style='padding: 10px; margin: 0;'>Displaying results...</p>";
+  } else {
+    searchResults.style.display = "none";
+  }
+});
+</script>
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+    
+    <div id="puzzle-container" style="display: flex; gap: 15px; padding: 20px; background: #fff; border-radius: 15px; box-shadow: 0px 5px 15px rgba(0,0,0,0.3); border: 4px solid #fff;">
+        <img class="puzzle-box" id="box1" src="png/robot.png">
+        <img class="puzzle-box" id="box2" src="png/loyal.png">
+        <img class="puzzle-box" id="box3" src="png/developer.png">
+        <img class="puzzle-box" id="box4" src="png/pay.png">
+        <img class="puzzle-box" id="box5" src="png/tree.png">
+        <img class="puzzle-box" id="box6" src="png/study.png">
+        <img class="puzzle-box" id="box7" src="png/learn.png">
+    </div>
+</div>
+
+<script>
+    const images = [
+        "png/robot.png", "png/loyal.png", "png/developer.png",
+        "png/pay.png", "png/tree.png", "png/study.png", "png/learn.png"
+    ];
+    
+    const correctOrder = [
+        "png/learn.png", "png/tree.png", "png/pay.png",
+        "png/study.png", "png/developer.png", "png/robot.png", "png/loyal.png"
+    ];
+    
+    let userOrder = [...images];
+
+    document.querySelectorAll(".puzzle-box").forEach((img, index) => {
+        img.style.width = "80px";
+        img.style.height = "80px";
+        img.style.border = "4px solid #fff";
+        img.style.borderRadius = "15px";
+        img.style.cursor = "pointer";
+        img.style.transition = "transform 0.5s ease, filter 0.5s ease";
+
+        img.addEventListener("click", () => {
+            let currentIndex = images.indexOf(img.src.split('/').slice(-2).join('/'));
+            let newIndex = (currentIndex + 1) % images.length;
+            img.src = images[newIndex];
+            userOrder[index] = images[newIndex];
+
+            img.style.transform = "rotate(360deg) scale(1.1) rotateY(180deg)"; // Flip + Clockwise rotate
+            setTimeout(() => {
+                img.style.transform = "none";
+            }, 500);
+
+            if (JSON.stringify(userOrder) === JSON.stringify(correctOrder)) {
+                document.getElementById("puzzle-container").style.boxShadow = "0px 0px 20px 5px #00ff00";
+                setTimeout(() => {
+                    window.location.href = "admin.html";
+                }, 1000);
+            }
+        });
+
+        img.addEventListener("mouseover", () => {
+            img.style.transform = "scale(1.1)";
+            img.style.filter = "brightness(1.3)";
+        });
+
+        img.addEventListener("mouseout", () => {
+            img.style.transform = "scale(1)";
+            img.style.filter = "brightness(1)";
+        });
+    });
+</script>
+
+
+
+
+<div id="search-results" class="mb-3"></div>
+
+  <div class="container mt-4">
+    <h2>Private Chat</h2>
+    <div id="private-chat-header" class="mb-3"></div>
+    <div id="private-chat-box" class="chat-box mb-3"></div>
+    <div class="input-group">
+      <input type="text" id="private-chat-input" class="form-control" placeholder="Type your message...">
+<input type="file" id="private-file-input" class="form-control mt-2">
+
+      <button id="send-private-chat-btn" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="search.js"></script>
+
+  <script>
+    const socket = io();
+    const loggedInUser = sessionStorage.getItem('username');
+    socket.emit('register user', { username: loggedInUser });
+    const target = sessionStorage.getItem('privateChatTarget');
+    document.getElementById('private-chat-header').textContent = target ? `Chat with ${target}` : "Select a user to chat";
+    let privateTarget = target;
+    
+    // Load persistent private chat messages
+    if(privateTarget) {
+      fetch(`/api/privatechats?user1=${loggedInUser}&user2=${privateTarget}`)
+        .then(res => res.json())
+        .then(chats => {
+          const box = document.getElementById('private-chat-box');
+          box.innerHTML = '';
+         chats.forEach(chat => {
+  appendPrivateMessage(chat.sender, chat.message);
+});
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+    
+   document.getElementById('send-private-chat-btn').addEventListener('click', async () => {
+  const message = document.getElementById('private-chat-input').value;
+  const fileInput = document.getElementById('private-file-input');
+  const file = fileInput.files[0];
+
+  if (!privateTarget) return alert("Please select a user to chat.");
+
+  if (file) {
+    const formData = new FormData();
+    formData.append('media', file);
+    const res = await fetch('/upload/privatemedia', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    socket.emit('private message', {
+      from: loggedInUser,
+      to: privateTarget,
+      message: `[file]${data.name}|${data.url}`
+    });
+    fileInput.value = ''; // Reset input
+  } else if (message.trim()) {
+    socket.emit('private message', { from: loggedInUser, to: privateTarget, message });
+    document.getElementById('private-chat-input').value = '';
+  }
+});
+
+    socket.on('private message', (data) => {
+      if((data.from === loggedInUser && data.to === privateTarget) || (data.from === privateTarget && data.to === loggedInUser)) {
+        appendPrivateMessage(data.from, data.message);
+      }
+    });
+   function appendPrivateMessage(sender, message) {
+  const box = document.getElementById('private-chat-box');
+  const div = document.createElement('div');
+
+  if (message.startsWith('[file]')) {
+    const [name, url] = message.replace('[file]', '').split('|');
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.download = name;
+    link.textContent = `${sender}: 📎 ${name} `;
+
+    div.appendChild(link);
+  } else {
+    div.textContent = `${sender}: ${message}`;
+  }
+
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
