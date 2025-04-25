@@ -157,6 +157,35 @@ body {
   border-radius: 0;
 }
 
+/* Add notification styles */
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+.notification-item.unread {
+  background-color: #e3f2fd;
+}
+.notification-time {
+  font-size: 0.8em;
+  color: #6c757d;
+}
+#notificationDropdown {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1.2em;
+}
+#notificationDropdown:hover {
+  color: #007bff;
+}
+.dropdown-menu {
+  padding: 0;
+}
+
 
 
 
@@ -180,7 +209,27 @@ body {
 
           <li class="nav-item"><a class="nav-link" href="game.html">Games</a></li>
         </ul>
-        <a class="btn btn-danger" href="/logout">Logout</a>
+        <div class="d-flex align-items-center">
+          <!-- Notification Bell -->
+          <div class="dropdown me-3">
+            <button class="btn position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count">
+                0
+              </span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" id="notification-list" style="width: 300px; max-height: 400px; overflow-y: auto;">
+              <li class="dropdown-item-text text-center" id="no-notifications">No notifications</li>
+            </ul>
+          </div>
+          <!-- Welcome User and Logout -->
+          <span class="badge bg-info text-dark me-2" id="welcome-user">
+            👋 Welcome, admin
+          </span>
+          <a class="btn btn-danger" href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
       </div>
     </div>
   </nav >
@@ -372,5 +421,6 @@ document.getElementById("search-user").addEventListener("input", function() {
 
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/notifications.js"></script>
 </body>
 </html>
