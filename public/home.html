@@ -232,6 +232,7 @@ body {
           blogs.forEach(blog => {
             const div = document.createElement('div');
             div.className = 'blog';
+            div.setAttribute('data-id', blog.id);
             div.innerHTML = `<h5>${blog.username}</h5>
               <p>${blog.content}</p>
               ${blog.image ? `<img src="${blog.image}" alt="Blog Image">` : ''}
@@ -239,6 +240,10 @@ body {
                 <button class="btn btn-outline-primary btn-sm like-btn" data-id="${blog.id}">Like (<span id="likes-${blog.id}">${blog.likes}</span>)</button>
                 <input type="text" class="form-control d-inline-block w-50 comment-input" data-id="${blog.id}" placeholder="Comment">
                 <button class="btn btn-outline-secondary btn-sm comment-btn" data-id="${blog.id}">Comment</button>
+                ${blog.username === loggedInUser ? `
+                  <button class="btn btn-outline-warning btn-sm edit-blog-btn" data-id="${blog.id}">Edit</button>
+                  <button class="btn btn-outline-danger btn-sm delete-blog-btn" data-id="${blog.id}">Delete</button>
+                ` : ''}
               </div>
               <div class="mt-2" id="comments-${blog.id}"></div>`;
             // Load comments for this blog
@@ -279,20 +284,41 @@ fetch('/api/me')
     document.getElementById('submit-blog').addEventListener('click', () => {
       const content = document.getElementById('blog-content').value;
       const imageInput = document.getElementById('blog-image');
+      const editId = document.getElementById('submit-blog').getAttribute('data-edit-id');
+      
       if(imageInput.files && imageInput.files[0]) {
         const formData = new FormData();
         formData.append('blogImage', imageInput.files[0]);
         fetch('/upload', { method: 'POST', body: formData })
           .then(response => response.json())
           .then(data => {
-            socket.emit('create blog', { username: loggedInUser, content, image: data.url });
+            if(editId) {
+              socket.emit('edit blog', { 
+                blogId: editId, 
+                username: loggedInUser, 
+                content, 
+                image: data.url 
+              });
+            } else {
+              socket.emit('create blog', { username: loggedInUser, content, image: data.url });
+            }
             createBlogModal.hide();
           })
           .catch(err => { console.error(err); createBlogModal.hide(); });
       } else {
-        socket.emit('create blog', { username: loggedInUser, content, image: null });
+        if(editId) {
+          socket.emit('edit blog', { 
+            blogId: editId, 
+            username: loggedInUser, 
+            content, 
+            image: null 
+          });
+        } else {
+          socket.emit('create blog', { username: loggedInUser, content, image: null });
+        }
         createBlogModal.hide();
       }
+      document.getElementById('submit-blog').removeAttribute('data-edit-id');
     });
     
     document.addEventListener('click', (e) => {
@@ -308,6 +334,43 @@ fetch('/api/me')
           socket.emit('blog comment', { blogId, username: loggedInUser, comment });
         }
         input.value = '';
+      }
+      if (e.target.classList.contains('edit-blog-btn')) {
+        const blogId = e.target.getAttribute('data-id');
+        const blogElement = e.target.closest('.blog');
+        const blogContent = blogElement.querySelector('p').textContent;
+        const blogImage = blogElement.querySelector('img')?.src;
+        
+        document.getElementById('blog-content').value = blogContent;
+        document.getElementById('blog-image').value = '';
+        document.getElementById('submit-blog').setAttribute('data-edit-id', blogId);
+        createBlogModal.show();
+      }
+      
+      if (e.target.classList.contains('delete-blog-btn')) {
+        const blogId = e.target.getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this blog?')) {
+          socket.emit('delete blog', { blogId, username: loggedInUser });
+        }
+      }
+    });
+    
+    // Handle blog updates
+    socket.on('blog updated', (blog) => {
+      const blogElement = document.querySelector(`.blog[data-id="${blog.id}"]`);
+      if (blogElement) {
+        blogElement.querySelector('p').textContent = blog.content;
+        const imgElement = blogElement.querySelector('img');
+        if (imgElement) {
+          imgElement.src = blog.image || '';
+        }
+      }
+    });
+
+    socket.on('blog deleted', (data) => {
+      const blogElement = document.querySelector(`.blog[data-id="${data.blogId}"]`);
+      if (blogElement) {
+        blogElement.remove();
       }
     });
     
