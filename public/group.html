@@ -253,6 +253,11 @@ body {
           <button id="start-mic" class="btn btn-secondary">Start Mic</button>
           <button id="stop-mic" class="btn btn-secondary">Stop Mic</button>
           <span id="mic-indicator"></span>
+          <div id="volume-indicator" class="mt-2">
+            <div class="progress" style="height: 20px;">
+              <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
         <!-- Whiteboard Toolbar -->
         <div id="whiteboard-toolbar" class="d-flex mb-2">
@@ -522,19 +527,61 @@ document.getElementById('send-group-chat-btn').addEventListener('click', async (
     
     // --- Voice Chat (Mic) Functionality using WebRTC ---
     let micStream = null;
-    let peerConnections = {};  // Holds RTCPeerConnections keyed by remote username
+    let peerConnections = {};
+    let audioContext = null;
+    let analyser = null;
+    let microphone = null;
+    let dataArray = null;
+    let animationFrameId = null;
     const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
     
     async function startMic() {
       try {
         micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         document.getElementById('mic-indicator').style.backgroundColor = 'green';
-       socket.emit('voice-ready', { username: loggedInUser, groupId: window.currentGroupId });
-
+        
+        // Setup audio context and analyser for volume visualization
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(micStream);
+        microphone.connect(analyser);
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        // Start volume visualization
+        updateVolumeIndicator();
+        
+        // Notify others in the group that we're ready for voice chat
+        socket.emit('voice-ready', { 
+          username: loggedInUser, 
+          groupId: window.currentGroupId 
+        });
+        
+        // Show alert to other users
+        socket.emit('mic-status', {
+          username: loggedInUser,
+          status: 'on',
+          groupId: window.currentGroupId
+        });
+        
       } catch (err) {
         console.error("Error starting mic:", err);
         alert("Error accessing microphone: " + err.message);
       }
+    }
+    
+    function updateVolumeIndicator() {
+      if (!analyser) return;
+      
+      analyser.getByteFrequencyData(dataArray);
+      const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+      const volume = Math.min(100, Math.round((average / 255) * 100));
+      
+      const progressBar = document.querySelector('#volume-indicator .progress-bar');
+      progressBar.style.width = `${volume}%`;
+      progressBar.style.backgroundColor = `hsl(${120 - volume}, 100%, 50%)`;
+      
+      animationFrameId = requestAnimationFrame(updateVolumeIndicator);
     }
     
     function stopMic() {
@@ -542,47 +589,111 @@ document.getElementById('send-group-chat-btn').addEventListener('click', async (
         micStream.getTracks().forEach(track => track.stop());
         micStream = null;
       }
-      document.getElementById('mic-indicator').style.backgroundColor = 'red';
-      for (let user in peerConnections) {
-        if (peerConnections[user]) {
-          peerConnections[user].close();
-        }
+      
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
       }
+      
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      
+      document.getElementById('mic-indicator').style.backgroundColor = 'red';
+      document.querySelector('#volume-indicator .progress-bar').style.width = '0%';
+      
+      // Close all peer connections
+      Object.values(peerConnections).forEach(pc => pc.close());
       peerConnections = {};
-      socket.emit('voice-stop', { username: loggedInUser });
+      
+      // Notify others that we've stopped voice chat
+      socket.emit('voice-stop', { 
+        username: loggedInUser, 
+        groupId: window.currentGroupId 
+      });
+      
+      // Show alert to other users
+      socket.emit('mic-status', {
+        username: loggedInUser,
+        status: 'off',
+        groupId: window.currentGroupId
+      });
     }
     
+    // Handle mic status changes from other users
+    socket.on('mic-status', (data) => {
+      if (data.username !== loggedInUser) {
+        const status = data.status === 'on' ? 'turned on' : 'turned off';
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${data.status === 'on' ? 'success' : 'warning'} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+          ${data.username} has ${status} their microphone
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.getElementById('group-chat-box').appendChild(alertDiv);
+        
+        // Auto-dismiss after 3 seconds
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 3000);
+      }
+    });
+    
+    // Handle incoming voice offers
     socket.on('voice-offer', async (data) => {
       const fromUser = data.from;
       if (!peerConnections[fromUser]) {
         peerConnections[fromUser] = new RTCPeerConnection(rtcConfig);
+        
+        // Add our audio track if we have one
         if (micStream) {
           micStream.getTracks().forEach(track => {
             peerConnections[fromUser].addTrack(track, micStream);
           });
         }
+        
+        // Handle ICE candidates
         peerConnections[fromUser].onicecandidate = (event) => {
           if (event.candidate) {
-            socket.emit('voice-candidate', { to: fromUser, candidate: event.candidate, from: loggedInUser });
+            socket.emit('voice-candidate', {
+              to: fromUser,
+              candidate: event.candidate,
+              from: loggedInUser,
+              groupId: window.currentGroupId
+            });
           }
         };
+        
+        // Handle incoming audio stream
         peerConnections[fromUser].ontrack = (event) => {
           let audioElem = document.getElementById('audio-' + fromUser);
           if (!audioElem) {
             audioElem = document.createElement('audio');
             audioElem.id = 'audio-' + fromUser;
             audioElem.autoplay = true;
+            audioElem.controls = true;
+            audioElem.volume = 1.0;
             document.body.appendChild(audioElem);
           }
           audioElem.srcObject = event.streams[0];
         };
       }
+      
+      // Set remote description and create answer
       await peerConnections[fromUser].setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peerConnections[fromUser].createAnswer();
       await peerConnections[fromUser].setLocalDescription(answer);
-      socket.emit('voice-answer', { to: fromUser, answer: answer, from: loggedInUser });
+      
+      socket.emit('voice-answer', {
+        to: fromUser,
+        answer: answer,
+        from: loggedInUser,
+        groupId: window.currentGroupId
+      });
     });
     
+    // Handle incoming voice answers
     socket.on('voice-answer', async (data) => {
       const fromUser = data.from;
       if (peerConnections[fromUser]) {
@@ -590,6 +701,7 @@ document.getElementById('send-group-chat-btn').addEventListener('click', async (
       }
     });
     
+    // Handle incoming ICE candidates
     socket.on('voice-candidate', async (data) => {
       const fromUser = data.from;
       if (peerConnections[fromUser]) {
@@ -601,20 +713,32 @@ document.getElementById('send-group-chat-btn').addEventListener('click', async (
       }
     });
     
+    // Handle list of users ready for voice chat
     socket.on('voice-users', async (data) => {
       data.users.forEach(async (user) => {
         if (user !== loggedInUser && !peerConnections[user]) {
           peerConnections[user] = new RTCPeerConnection(rtcConfig);
+          
+          // Add our audio track if we have one
           if (micStream) {
             micStream.getTracks().forEach(track => {
               peerConnections[user].addTrack(track, micStream);
             });
           }
+          
+          // Handle ICE candidates
           peerConnections[user].onicecandidate = (event) => {
             if (event.candidate) {
-              socket.emit('voice-candidate', { to: user, candidate: event.candidate, from: loggedInUser });
+              socket.emit('voice-candidate', {
+                to: user,
+                candidate: event.candidate,
+                from: loggedInUser,
+                groupId: window.currentGroupId
+              });
             }
           };
+          
+          // Handle incoming audio stream
           peerConnections[user].ontrack = (event) => {
             let audioElem = document.getElementById('audio-' + user);
             if (!audioElem) {
@@ -625,21 +749,38 @@ document.getElementById('send-group-chat-btn').addEventListener('click', async (
             }
             audioElem.srcObject = event.streams[0];
           };
+          
+          // Create and send offer
           const offer = await peerConnections[user].createOffer();
           await peerConnections[user].setLocalDescription(offer);
-          socket.emit('voice-offer', { to: user, offer: offer, from: loggedInUser });
+          
+          socket.emit('voice-offer', {
+            to: user,
+            offer: offer,
+            from: loggedInUser,
+            groupId: window.currentGroupId
+          });
         }
       });
     });
     
-    document.getElementById('start-mic').addEventListener('click', async () => {
-      if (!micStream) {
-        await startMic();
+    // Handle voice stop
+    socket.on('voice-stop', (data) => {
+      const fromUser = data.username;
+      if (peerConnections[fromUser]) {
+        peerConnections[fromUser].close();
+        delete peerConnections[fromUser];
+        
+        const audioElem = document.getElementById('audio-' + fromUser);
+        if (audioElem) {
+          audioElem.remove();
+        }
       }
     });
-    document.getElementById('stop-mic').addEventListener('click', () => {
-      stopMic();
-    });
+    
+    // Add event listeners for mic controls
+    document.getElementById('start-mic').addEventListener('click', startMic);
+    document.getElementById('stop-mic').addEventListener('click', stopMic);
     
     // --- Screen Sharing (WebRTC-based) ---
     let screenStream = null;
