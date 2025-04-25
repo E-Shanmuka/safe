@@ -537,40 +537,73 @@ socket.on('verify group code', async (data, callback) => {
 
 
   
-  // --- Mic (Voice Chat) Signaling ---
+  // --- Voice Chat (Mic) Signaling ---
   socket.on('voice-ready', (data) => {
     const room = 'group-' + data.groupId;
     const usersInRoom = [];
 
     const clients = io.sockets.adapter.rooms.get(room);
     if (clients) {
-        clients.forEach(socketId => {
-            for (const [username, id] of Object.entries(onlineUsers)) {
-                if (id === socketId) {
-                    usersInRoom.push(username);
-                }
-            }
-        });
+      clients.forEach(socketId => {
+        for (const [username, id] of Object.entries(onlineUsers)) {
+          if (id === socketId) {
+            usersInRoom.push(username);
+          }
+        }
+      });
     }
 
+    // Send list of users to everyone in the room
     io.to(room).emit('voice-users', { users: usersInRoom });
-});
+  });
+
+  // Handle mic status changes
+  socket.on('mic-status', (data) => {
+    const room = 'group-' + data.groupId;
+    socket.to(room).emit('mic-status', {
+      username: data.username,
+      status: data.status
+    });
+  });
 
   socket.on('voice-offer', (data) => {
     const targetSocket = onlineUsers[data.to];
-    if (targetSocket) io.to(targetSocket).emit('voice-offer', data);
+    if (targetSocket) {
+      io.to(targetSocket).emit('voice-offer', {
+        from: data.from,
+        offer: data.offer,
+        groupId: data.groupId
+      });
+    }
   });
+
   socket.on('voice-answer', (data) => {
     const targetSocket = onlineUsers[data.to];
-    if (targetSocket) io.to(targetSocket).emit('voice-answer', data);
+    if (targetSocket) {
+      io.to(targetSocket).emit('voice-answer', {
+        from: data.from,
+        answer: data.answer,
+        groupId: data.groupId
+      });
+    }
   });
+
   socket.on('voice-candidate', (data) => {
     const targetSocket = onlineUsers[data.to];
-    if (targetSocket) io.to(targetSocket).emit('voice-candidate', data);
+    if (targetSocket) {
+      io.to(targetSocket).emit('voice-candidate', {
+        from: data.from,
+        candidate: data.candidate,
+        groupId: data.groupId
+      });
+    }
   });
+
   socket.on('voice-stop', (data) => {
-    socket.broadcast.emit('voice-stop', data);
+    const room = 'group-' + data.groupId;
+    socket.to(room).emit('voice-stop', { username: data.username });
   });
+
   
   // --- Screen Sharing Signaling ---
  socket.on('screen-share-ready', (data) => {
