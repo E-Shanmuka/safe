@@ -626,6 +626,7 @@ socket.on('verify group code', async (data, callback) => {
   });
 });
 
+
 sequelize.sync({ force: false }).then(async () => {
   // Create admin user if not exists
   const adminExists = await User.findOne({ where: { username: 'admin' } });
