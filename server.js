@@ -402,6 +402,57 @@ socket.on('whiteboard draw', (data) => {
   }
 });
 
+// Blog edit handler
+socket.on('edit blog', async (data) => {
+  if (!data.username || !data.content || !data.blogId) {
+    return socket.emit('error', { message: 'Missing required fields for blog edit.' });
+  }
+
+  try {
+    const blog = await Blog.findByPk(data.blogId);
+    if (!blog) {
+      return socket.emit('error', { message: 'Blog not found.' });
+    }
+
+    if (blog.username !== data.username) {
+      return socket.emit('error', { message: 'Unauthorized to edit this blog.' });
+    }
+
+    blog.content = data.content;
+    if (data.image !== null) {
+      blog.image = data.image;
+    }
+    await blog.save();
+    io.emit('blog updated', blog);
+  } catch (err) {
+    console.error('Error editing blog:', err);
+    socket.emit('error', { message: 'Failed to edit blog.' });
+  }
+});
+
+// Blog delete handler
+socket.on('delete blog', async (data) => {
+  if (!data.username || !data.blogId) {
+    return socket.emit('error', { message: 'Missing required fields for blog deletion.' });
+  }
+
+  try {
+    const blog = await Blog.findByPk(data.blogId);
+    if (!blog) {
+      return socket.emit('error', { message: 'Blog not found.' });
+    }
+
+    if (blog.username !== data.username) {
+      return socket.emit('error', { message: 'Unauthorized to delete this blog.' });
+    }
+
+    await blog.destroy();
+    io.emit('blog deleted', { blogId: data.blogId });
+  } catch (err) {
+    console.error('Error deleting blog:', err);
+    socket.emit('error', { message: 'Failed to delete blog.' });
+  }
+});
   
   // Blog like toggle
   socket.on('blog like', async (data) => {
