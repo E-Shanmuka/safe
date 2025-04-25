@@ -371,7 +371,15 @@ socket.on('whiteboard draw', (data) => {
   socket.on('private message', async (data) => {
     await PrivateChat.create({ sender: data.from, receiver: data.to, message: data.message });
     const targetSocket = onlineUsers[data.to];
-    if (targetSocket) io.to(targetSocket).emit('private message', data);
+    if (targetSocket) {
+      io.to(targetSocket).emit('private message', data);
+      // Create notification for the receiver
+      io.to(targetSocket).emit('new notification', {
+        type: 'message',
+        message: `New message from ${data.from}`,
+        sourceId: data.from
+      });
+    }
     socket.emit('private message', data);
   });
   
@@ -380,6 +388,22 @@ socket.on('whiteboard draw', (data) => {
     await GroupChat.create({ groupId: data.groupId, username: data.username, message: data.message });
     const room = 'group-' + data.groupId;
     io.to(room).emit('group message', data);
+    
+    // Create notifications for all users in the group except the sender
+    const clients = io.sockets.adapter.rooms.get(room);
+    if (clients) {
+      clients.forEach(socketId => {
+        for (const [username, id] of Object.entries(onlineUsers)) {
+          if (id === socketId && username !== data.username) {
+            io.to(id).emit('new notification', {
+              type: 'group',
+              message: `New message in group from ${data.username}`,
+              sourceId: data.groupId
+            });
+          }
+        }
+      });
+    }
   });
   
   // Blog creation
