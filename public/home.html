@@ -220,8 +220,20 @@ body {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const socket = io();
-    const loggedInUser = sessionStorage.getItem('username');
-    socket.emit('register user', { username: loggedInUser });
+    let loggedInUser = null;
+    
+    // Get the logged-in user from the server
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        loggedInUser = data.username;
+        const welcomeEl = document.getElementById('welcome-user');
+        if (loggedInUser) {
+          welcomeEl.textContent = `👋 Welcome, ${loggedInUser}`;
+        }
+        // Load blogs after we have the username
+        loadBlogs();
+      });
     
     function loadBlogs() {
       fetch('/api/blogs')
@@ -261,17 +273,6 @@ body {
           });
         });
     }
-    loadBlogs();
-// Fetch session user from backend
-fetch('/api/me')
-  .then(res => res.json())
-  .then(data => {
-    const welcomeEl = document.getElementById('welcome-user');
-    if (data.username) {
-      welcomeEl.textContent = `👋 Welcome, ${data.username}`;
-    }
-  });
-
     
     socket.on('new blog', () => { loadBlogs(); });
     socket.on('blog updated', (blog) => { document.getElementById(`likes-${blog.id}`).textContent = blog.likes; });
