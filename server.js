@@ -664,7 +664,7 @@ sequelize.sync({ force: false }).then(async () => {
   // Create admin user if not exists
   const adminExists = await User.findOne({ where: { username: 'admin' } });
   if (!adminExists) {
-    await User.create({ username: 'admin', email: 'admin@example.com', password: '000' });
+    await User.create({ username: 'admin', email: 'admin@shannu.com', password: '000' });
     console.log("Admin user created: admin/000");
   }
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
