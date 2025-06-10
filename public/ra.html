@@ -305,7 +305,7 @@ async function analyze(text) {
   const prompt = `You are an expert AI Resume Analyzer. Given the resume below, return a JSON in the following format:\n{\n  "summary": "...", "skills": ["..."], "strengths": ["..."], "weaknesses": ["..."], "score": 0-100, "ranking": "...", "career_path": ["role1", "role2", "role3"], "improvements": ["..."], "suggested_roles": [{ "role": "...", "description": "...", "match_score": 0-100, "tips": "..." }]}`;
 
   try {
-    const response = await axios.post("https://tigerbhasha.onrender.com/api/openai", {
+    const response = await axios.post("https://tigerbhasha1.onrender.com/api/openai", {
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt + "\n\n" + text }]
     }, {
